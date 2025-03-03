@@ -87,6 +87,40 @@ Static files are configured to be served from the `static` directory. To collect
 python manage.py collectstatic
 ```
 
+### Color Palette
+
+The application uses a consistent color scheme defined in `static/css/custom.css`:
+
+#### Primary Colors
+- `#1C6043` - Deep Green
+- `#27865D` - Forest Green
+- `#85D1B0` - Sage Green
+- `#D1F3E4` - Mint Green
+- `#F5FBF8` - Ice Green
+
+#### Secondary Colors
+- `#2C887C` - Teal
+- `#7FC0B7` - Sea Green
+- `#ACDCD5` - Light Teal
+- `#DBFFFA` - Pale Teal
+- `#E6FFFE` - Ice Teal
+
+#### Grey Colors
+- `#5A5A5A` - Dark Grey
+- `#B3B3B3` - Medium Grey
+- `#D0D2D6` - Light Grey
+- `#E9E9EA` - Pale Grey
+- `#F8F8F8` - Off White
+
+#### Black Colors
+- `#000000` - Pure Black
+- `#242629` - Rich Black
+- `#53555A` - Charcoal
+- `#DBDBDC` - Light Charcoal
+- `#F6F8F7` - Off White
+
+These colors are implemented using CSS variables and can be accessed throughout the application using the `var(--color-name)` syntax.
+
 ## Usage
 
 1. Access the application at `http://localhost:8000`

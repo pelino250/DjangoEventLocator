@@ -159,20 +159,21 @@ class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-def toggle_favorite(request, slug):
+def toggle_favorite(request):
     """Toggle event favorite status for current user."""
-    if not request.user.is_authenticated:
-        return redirect("users:login")
-
-    event = get_object_or_404(Event, slug=slug)
-    if event in request.user.favorite_events.all():
-        request.user.favorite_events.remove(event)
-        messages.success(request, "Event removed from favorites.")
-    else:
-        request.user.favorite_events.add(event)
-        messages.success(request, "Event added to favorites.")
-
-    return redirect("events:event-detail", slug=slug)
+    pass
+    # if not request.user.is_authenticated:
+    #     return redirect("users:login")
+    #
+    # event = get_object_or_404(Event, slug=slug)
+    # if event in request.user.favorite_events.all():
+    #     request.user.favorite_events.remove(event)
+    #     messages.success(request, "Event removed from favorites.")
+    # else:
+    #     request.user.favorite_events.add(event)
+    #     messages.success(request, "Event added to favorites.")
+    #
+    # return redirect("events:event-detail", slug=slug)
 
 
 def toggle_attendance(request, slug):
@@ -221,8 +222,8 @@ class UserFavoritesListView(LoginRequiredMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return self.request.user.favorite_events.all().order_by("-start_date")
-
+        # return self.request.user.favorite_events.all().order_by("-start_date")
+        pass
 
 class UserAttendingListView(LoginRequiredMixin, ListView):
     """Display list of events the user is attending."""

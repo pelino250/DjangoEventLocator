@@ -1,0 +1,144 @@
+:root {
+    /* Primary Colors */
+    --primary-100: #F5FBF8;
+    --primary-200: #D1F3E4;
+    --primary-300: #85D1B0;
+    --primary-400: #27865D;
+    --primary-500: #1C6043;
+
+    /* Secondary Colors */
+    --secondary-100: #E6FFFE;
+    --secondary-200: #DBFFFA;
+    --secondary-300: #ACDCD5;
+    --secondary-400: #7FC0B7;
+    --secondary-500: #2C887C;
+
+    /* Grey Colors */
+    --grey-100: #F8F8F8;
+    --grey-200: #E9E9EA;
+    --grey-300: #D0D2D6;
+    --grey-400: #B3B3B3;
+    --grey-500: #5A5A5A;
+
+    /* Black Colors */
+    --black-100: #F6F8F7;
+    --black-200: #DBDBDC;
+    --black-300: #53555A;
+    --black-400: #242629;
+    --black-500: #000000;
+}
+
+/* Bootstrap overrides */
+.bg-dark {
+    background-color: var(--black-400) !important;
+}
+
+.navbar-dark {
+    background-color: var(--black-400) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-400) !important;
+    border-color: var(--primary-400) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-500) !important;
+    border-color: var(--primary-500) !important;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-400) !important;
+    border-color: var(--secondary-400) !important;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-500) !important;
+    border-color: var(--secondary-500) !important;
+}
+
+/* Custom component styles */
+.card {
+    background-color: var(--black-100);
+    border: 1px solid var(--grey-200);
+}
+
+.card-header {
+    background-color: var(--primary-100);
+    border-bottom: 1px solid var(--primary-200);
+}
+
+.card-footer {
+    background-color: var(--grey-100);
+    border-top: 1px solid var(--grey-200);
+}
+
+.form-control {
+    border-color: var(--grey-300);
+}
+
+.form-control:focus {
+    border-color: var(--primary-300);
+    box-shadow: 0 0 0 0.25rem rgba(39, 134, 93, 0.25);
+}
+
+/* Alert colors */
+.alert-success {
+    background-color: var(--primary-100);
+    border-color: var(--primary-300);
+    color: var(--primary-500);
+}
+
+.alert-info {
+    background-color: var(--secondary-100);
+    border-color: var(--secondary-300);
+    color: var(--secondary-500);
+}
+
+/* Text colors */
+.text-primary {
+    color: var(--primary-400) !important;
+}
+
+.text-secondary {
+    color: var(--secondary-400) !important;
+}
+
+body {
+    color: var(--black-400);
+    background-color: var(--black-100);
+}
+
+/* Navigation */
+.nav-link {
+    color: var(--grey-200) !important;
+}
+
+.nav-link:hover {
+    color: var(--primary-200) !important;
+}
+
+.navbar-brand {
+    color: var(--primary-200) !important;
+}
+
+/* Footer */
+footer {
+    background-color: var(--black-400) !important;
+    color: var(--grey-200) !important;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    background-color: var(--black-100);
+    border-color: var(--grey-200);
+}
+
+.dropdown-item {
+    color: var(--black-400);
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-100);
+    color: var(--primary-500);
+}
