@@ -1,5 +1,5 @@
-# Use the official Python image as a base image
-FROM python:3.9-slim
+# Use the official Python 3.12 image as a base image
+FROM python:3.12-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . /app/
 EXPOSE 8000
 
 # Set environment variable to tell Django to not use the debug mode in production
-ENV DJANGO_SETTINGS_MODULE=myproject.settings.production
+ENV DJANGO_SETTINGS_MODULE=DjangoEventLocator.settings
 
 # Run migrations and then start the Django application
 CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
