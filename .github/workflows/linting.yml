@@ -25,9 +25,6 @@ jobs:
             pip install pre-commit black
             pre-commit install
 
-    - name: Run black
-      run: black .
-
     - name: run pre-commit
       run: pre-commit run --all-files
     
