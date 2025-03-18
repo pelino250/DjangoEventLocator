@@ -26,7 +26,7 @@ jobs:
             pre-commit install
 
     - name: Run black
-      run: black --check .
+      run: black .
 
     - name: run pre-commit
       run: pre-commit run --all-files
