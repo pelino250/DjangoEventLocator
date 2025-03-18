@@ -225,6 +225,7 @@ class UserFavoritesListView(LoginRequiredMixin, ListView):
         # return self.request.user.favorite_events.all().order_by("-start_date")
         pass
 
+
 class UserAttendingListView(LoginRequiredMixin, ListView):
     """Display list of events the user is attending."""
 

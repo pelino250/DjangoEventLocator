@@ -5,7 +5,7 @@ from django.utils.text import slugify
 
 
 def populate_event_slugs(apps, schema_editor):
-    Event = apps.get_model('events', 'Event')
+    Event = apps.get_model("events", "Event")
     for event in Event.objects.all():
         base_slug = slugify(event.title)
         slug = base_slug
@@ -19,19 +19,16 @@ def populate_event_slugs(apps, schema_editor):
 
 
 def reverse_populate_event_slugs(apps, schema_editor):
-    Event = apps.get_model('events', 'Event')
+    Event = apps.get_model("events", "Event")
     Event.objects.all().update(slug=None)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0002_event_slug'),
+        ("events", "0002_event_slug"),
     ]
 
     operations = [
-        migrations.RunPython(
-            populate_event_slugs,
-            reverse_populate_event_slugs
-        ),
+        migrations.RunPython(populate_event_slugs, reverse_populate_event_slugs),
     ]

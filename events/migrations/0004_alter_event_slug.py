@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0003_populate_event_slugs'),
+        ("events", "0003_populate_event_slugs"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='slug',
-            field=models.SlugField(default='', unique=True),
+            model_name="event",
+            name="slug",
+            field=models.SlugField(default="", unique=True),
         ),
     ]
