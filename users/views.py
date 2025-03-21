@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
 from .forms import UserRegistrationForm, UserProfileForm
+from django.core.mail import send_mail
 
 def register(request):
     if request.method == 'POST':
@@ -12,6 +14,15 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, _('Your account has been created successfully!'))
+            
+            # Send a welcome email
+            subject = _('Welcome to Django Event Locator!')
+            message = _('Hi {},\n\nThank you for registering at Django Event Locator. We are excited to have you on board!').format(user.username)
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [user.email]
+
+            send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+
             return redirect('users:profile')
     else:
         form = UserRegistrationForm()
@@ -26,7 +37,7 @@ def profile(request, username=None):
             if form.is_valid():
                 form.save()
                 messages.success(request, _('Your profile has been updated successfully!'))
-                return redirect('users:profile')
+            return redirect('users:profile')
         else:
             form = UserProfileForm(instance=user)
     else:
