@@ -1,0 +1,30 @@
+---
+# Django settings
+django_secret_key: "your-secure-secret-key-for-production"
+django_debug: "0"
+django_allowed_hosts: "yourdomain.com,www.yourdomain.com"
+
+# Database settings
+postgres_db: "django_db"
+postgres_user: "django"
+postgres_password: "secure-production-password"
+
+# Email settings
+email_host: "smtp.gmail.com"
+email_port: "587"
+email_use_tls: "True"
+email_host_user: "your-email@gmail.com"
+email_host_password: "your-app-password"
+
+# Domain settings
+domain_name: "yourdomain.com"
+admin_email: "admin@yourdomain.com"
+
+# Security settings
+csrf_trusted_origins: "https://yourdomain.com,https://www.yourdomain.com"
+secure_ssl_redirect: "True"
+session_cookie_secure: "True"
+csrf_cookie_secure: "True"
+secure_hsts_seconds: "31536000"
+secure_hsts_include_subdomains: "True"
+secure_hsts_preload: "True"

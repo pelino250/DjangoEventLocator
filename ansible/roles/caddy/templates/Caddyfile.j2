@@ -1,0 +1,69 @@
+#caddy documentation: https://caddyserver.com/docs/caddyfile
+# Global options
+{
+    admin off
+}
+
+# Default site
+localhost, 127.0.0.1 {
+    # HTTPS for local development
+    tls internal
+    # Handle static files
+    handle /static/* {
+        root * /staticfiles
+        file_server
+    }
+
+    # Handle media files
+    handle /media/* {
+        root * /media
+        file_server
+    }
+
+    # Proxy everything else to Django
+    handle {
+        reverse_proxy web:8000
+    }
+
+    # Enable compression
+    encode gzip
+
+    # Log requests
+    log {
+        output stdout
+    }
+}
+
+# Production site with automatic HTTPS
+{{ domain_name }} {
+    # Automatic HTTPS with Let's Encrypt
+    tls {{ admin_email }} {
+        # Force certificate issuance/renewal even if the certificate is not yet near expiry
+        on_demand
+    }
+
+    # Handle static files
+    handle /static/* {
+        root * /staticfiles
+        file_server
+    }
+
+    # Handle media files
+    handle /media/* {
+        root * /media
+        file_server
+    }
+
+    # Proxy everything else to Django
+    handle {
+        reverse_proxy web:8000
+    }
+
+    # Enable compression
+    encode gzip
+
+    # Log requests
+    log {
+        output stdout
+    }
+}

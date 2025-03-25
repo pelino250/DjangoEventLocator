@@ -1,0 +1,49 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+  when: ansible_os_family == "Debian"
+
+- name: Install common packages
+  apt:
+    name:
+      - git
+      - curl
+      - wget
+      - vim
+      - htop
+      - net-tools
+      - python3
+      - python3-pip
+      - python3-venv
+      - ufw
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Configure UFW
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Allow SSH
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Allow HTTP
+  ufw:
+    rule: allow
+    port: 80
+    proto: tcp
+
+- name: Allow HTTPS
+  ufw:
+    rule: allow
+    port: 443
+    proto: tcp

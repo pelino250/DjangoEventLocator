@@ -1,0 +1,30 @@
+---
+# Django settings
+django_secret_key: "your-secure-secret-key-for-staging"
+django_debug: "1"  # Debug can be enabled in staging
+django_allowed_hosts: "staging.yourdomain.com,staging-api.yourdomain.com"
+
+# Database settings
+postgres_db: "django_staging_db"
+postgres_user: "django_staging"
+postgres_password: "secure-staging-password"
+
+# Email settings
+email_host: "mailhog"  # Use mailhog for staging
+email_port: "1025"
+email_use_tls: "False"
+email_host_user: ""
+email_host_password: ""
+
+# Domain settings
+domain_name: "staging.yourdomain.com"
+admin_email: "admin@yourdomain.com"
+
+# Security settings
+csrf_trusted_origins: "https://staging.yourdomain.com,https://staging-api.yourdomain.com"
+secure_ssl_redirect: "True"
+session_cookie_secure: "True"
+csrf_cookie_secure: "True"
+secure_hsts_seconds: "31536000"
+secure_hsts_include_subdomains: "True"
+secure_hsts_preload: "True"

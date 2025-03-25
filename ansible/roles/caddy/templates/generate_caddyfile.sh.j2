@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Set variables
+TEMPLATE_FILE="/opt/django-event-locator/caddy-config/Caddyfile.template"
+OUTPUT_FILE="/opt/django-event-locator/Caddyfile"
+DOMAIN_NAME="{{ domain_name | default('example.com') }}"
+ADMIN_EMAIL="{{ admin_email | default('admin@example.com') }}"
+
+# Create Caddyfile from template
+echo "Generating Caddyfile for domain: $DOMAIN_NAME"
+cat $TEMPLATE_FILE | sed "s/{{ domain_name }}/$DOMAIN_NAME/g" | sed "s/{{ admin_email }}/$ADMIN_EMAIL/g" > $OUTPUT_FILE
+
+# Set permissions
+chmod 644 $OUTPUT_FILE
+
+echo "Caddyfile generated at $OUTPUT_FILE"

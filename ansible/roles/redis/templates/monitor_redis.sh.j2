@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Set variables
+LOG_DIR="/opt/django-event-locator/redis-monitoring"
+LOG_FILE="$LOG_DIR/redis_monitoring.log"
+CONTAINER_NAME=$(docker ps --filter name=redis --format "{{.Names}}")
+TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+
+# Check if Redis container is running
+if [ -z "$CONTAINER_NAME" ]; then
+    echo "[$TIMESTAMP] ERROR: Redis container is not running" >> $LOG_FILE
+    # Attempt to restart Redis container
+    cd /opt/django-event-locator && docker-compose up -d redis
+    echo "[$TIMESTAMP] Attempted to restart Redis container" >> $LOG_FILE
+    exit 1
+fi
+
+# Check Redis status
+REDIS_INFO=$(docker exec $CONTAINER_NAME redis-cli info)
+if [ $? -ne 0 ]; then
+    echo "[$TIMESTAMP] ERROR: Failed to get Redis info" >> $LOG_FILE
+    exit 1
+fi
+
+# Extract key metrics
+USED_MEMORY=$(echo "$REDIS_INFO" | grep used_memory_human | cut -d: -f2 | tr -d '\r')
+CONNECTED_CLIENTS=$(echo "$REDIS_INFO" | grep connected_clients | cut -d: -f2 | tr -d '\r')
+UPTIME_DAYS=$(echo "$REDIS_INFO" | grep uptime_in_days | cut -d: -f2 | tr -d '\r')
+
+# Log metrics
+echo "[$TIMESTAMP] Redis Status: OK, Memory: $USED_MEMORY, Clients: $CONNECTED_CLIENTS, Uptime: $UPTIME_DAYS days" >> $LOG_FILE
+
+# Cleanup old log entries (keep last 1000 lines)
+tail -n 1000 $LOG_FILE > $LOG_FILE.tmp && mv $LOG_FILE.tmp $LOG_FILE
+
+exit 0

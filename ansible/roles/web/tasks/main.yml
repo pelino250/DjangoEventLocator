@@ -1,0 +1,65 @@
+---
+- name: Create project directory
+  file:
+    path: "/opt/django-event-locator"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Clone or update repository
+  git:
+    repo: "https://github.com/yourusername/DjangoEventLocator.git"
+    dest: "/opt/django-event-locator"
+    version: main
+    update: yes
+  become: yes
+  become_user: "{{ ansible_user }}"
+
+- name: Create .env file
+  template:
+    src: env.j2
+    dest: "/opt/django-event-locator/.env"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
+
+- name: Copy docker-compose.yml
+  copy:
+    src: "{{ playbook_dir }}/../../docker-compose.yml"
+    dest: "/opt/django-event-locator/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Copy Dockerfile
+  copy:
+    src: "{{ playbook_dir }}/../../Dockerfile"
+    dest: "/opt/django-event-locator/Dockerfile"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Copy entrypoint.sh
+  copy:
+    src: "{{ playbook_dir }}/../../entrypoint.sh"
+    dest: "/opt/django-event-locator/entrypoint.sh"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy Caddyfile
+  copy:
+    src: "{{ playbook_dir }}/../../Caddyfile"
+    dest: "/opt/django-event-locator/Caddyfile"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Build and start Docker containers
+  community.docker.docker_compose_v2:
+    project_src: "/opt/django-event-locator"
+    build: yes
+    pull: yes
+  become: yes
+  become_user: "{{ ansible_user }}"

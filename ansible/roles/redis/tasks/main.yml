@@ -1,0 +1,27 @@
+---
+# Note: We're using Redis in Docker, so we don't need to install it on the host
+# These tasks are for Redis monitoring and maintenance
+
+- name: Create Redis monitoring directory
+  file:
+    path: "/opt/django-event-locator/redis-monitoring"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy Redis monitoring script
+  template:
+    src: monitor_redis.sh.j2
+    dest: "/opt/django-event-locator/redis-monitoring/monitor_redis.sh"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Setup Redis monitoring cron job
+  cron:
+    name: "Monitor Redis for Django Event Locator"
+    user: "{{ ansible_user }}"
+    hour: "*"
+    minute: "*/15"
+    job: "/opt/django-event-locator/redis-monitoring/monitor_redis.sh"

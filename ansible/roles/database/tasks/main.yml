@@ -1,0 +1,27 @@
+---
+# Note: We're using PostgreSQL in Docker, so we don't need to install it on the host
+# These tasks are for database backup and maintenance
+
+- name: Create database backup directory
+  file:
+    path: "/opt/django-event-locator/backups"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy database backup script
+  template:
+    src: backup_db.sh.j2
+    dest: "/opt/django-event-locator/backups/backup_db.sh"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Setup database backup cron job
+  cron:
+    name: "Backup Django Event Locator database"
+    user: "{{ ansible_user }}"
+    hour: "3"
+    minute: "0"
+    job: "/opt/django-event-locator/backups/backup_db.sh"

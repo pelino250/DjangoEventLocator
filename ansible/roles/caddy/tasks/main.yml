@@ -1,0 +1,43 @@
+---
+# Note: We're using Caddy in Docker, so we don't need to install it on the host
+# These tasks are for Caddy configuration and SSL certificate management
+
+- name: Create Caddy configuration directory
+  file:
+    path: "/opt/django-event-locator/caddy-config"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy Caddyfile template
+  template:
+    src: Caddyfile.j2
+    dest: "/opt/django-event-locator/caddy-config/Caddyfile.template"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Generate Caddyfile from template
+  template:
+    src: generate_caddyfile.sh.j2
+    dest: "/opt/django-event-locator/caddy-config/generate_caddyfile.sh"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Run Caddyfile generation script
+  command: "/opt/django-event-locator/caddy-config/generate_caddyfile.sh"
+  args:
+    creates: "/opt/django-event-locator/Caddyfile"
+  become: yes
+  become_user: "{{ ansible_user }}"
+
+- name: Setup Caddy certificate renewal cron job
+  cron:
+    name: "Renew Caddy certificates for Django Event Locator"
+    user: "{{ ansible_user }}"
+    hour: "2"
+    minute: "0"
+    weekday: "0"
+    job: "cd /opt/django-event-locator && docker-compose restart caddy"

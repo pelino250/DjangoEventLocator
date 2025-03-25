@@ -1,0 +1,112 @@
+name: Build, Test, and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        load: true
+        tags: django-event-locator:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: django_db
+          POSTGRES_USER: django
+          POSTGRES_PASSWORD: django_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run tests
+      env:
+        DJANGO_SETTINGS_MODULE: DjangoEventLocator.settings
+        DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'django-insecure-key-for-testing' }}
+        DJANGO_DEBUG: 1
+        POSTGRES_DB: django_db
+        POSTGRES_USER: django
+        POSTGRES_PASSWORD: django_password
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+      run: |
+        python manage.py test
+
+  # Uncomment and configure this job when you're ready to deploy
+  # deploy:
+  #   needs: [build, test]
+  #   if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  #   runs-on: ubuntu-latest
+  #   
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #     
+  #   - name: Deploy to production
+  #     run: |
+  #       echo "Add your deployment steps here"
+  #       # Example: Deploy to a server via SSH
+  #       # - uses: appleboy/ssh-action@master
+  #       #   with:
+  #       #     host: ${{ secrets.SSH_HOST }}
+  #       #     username: ${{ secrets.SSH_USERNAME }}
+  #       #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #       #     script: |
+  #       #       cd /path/to/project
+  #       #       git pull
+  #       #       docker-compose up -d --build

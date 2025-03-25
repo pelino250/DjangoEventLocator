@@ -1,0 +1,21 @@
+---
+- name: Install common dependencies
+  hosts: webservers
+  become: true
+  roles:
+    - common
+
+- name: Install and configure Docker
+  hosts: webservers
+  become: true
+  roles:
+    - docker
+
+- name: Deploy Django Event Locator application
+  hosts: webservers
+  become: true
+  roles:
+    - web
+    - database
+    - redis
+    - caddy
