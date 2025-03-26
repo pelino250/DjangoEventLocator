@@ -227,6 +227,26 @@ These colors are implemented using CSS variables and can be accessed throughout 
 4. Push to your branch
 5. Create a Pull Request
 
+## Continuous Integration/Continuous Deployment (CI/CD)
+
+This project uses GitHub Actions for CI/CD. The workflows are defined in the `.github/workflows` directory:
+
+1. **Linting Workflow**: Runs code quality checks using Black and pre-commit.
+2. **Build, Test, and Deploy Workflow**: Builds the Docker image, runs tests, and provides a template for deployment.
+
+For more details about the CI/CD setup, see the [github_actions.md](github_actions.md) file.
+
+### Local Development with Pre-commit
+
+To ensure your code passes the same checks that run in CI, you can use pre-commit hooks locally:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+This will automatically run the configured hooks on your commits.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -271,7 +291,7 @@ The application can be easily deployed using Docker and docker-compose. The setu
 
 ### Accessing Services
 
-- **Web Application**: http://localhost (served by Caddy)
+- **Web Application**: https://localhost or http://localhost (served by Caddy)
 - **Mailhog Web Interface**: http://localhost:8025 (for viewing sent emails)
 - **PostgreSQL**: localhost:5432 (accessible with database tools using credentials from .env)
 - **Redis**: localhost:6379 (accessible with Redis tools)
@@ -305,6 +325,130 @@ For production deployment:
 - Set DJANGO_DEBUG=0 in .env
 - Configure proper email settings for a production mail server
 - Update the Caddyfile with your domain name
-- Configure ALLOWED_HOSTS in .env
-- Set up proper SSL/TLS certificates (Caddy can handle this automatically)
+- Configure ALLOWED_HOSTS in .env to include your domain
+- SSL/TLS certificates are automatically handled by Caddy:
+  - Replace `example.com` in the Caddyfile with your actual domain name
+  - Update the admin email address provided as an argument to the `tls` directive for Let's Encrypt notifications
+  - Ensure your security settings in .env are configured for HTTPS:
+    ```
+    CSRF_TRUSTED_ORIGINS=http://localhost,http://127.0.0.1,https://yourdomain.com
+    SECURE_SSL_REDIRECT=True
+    SESSION_COOKIE_SECURE=True
+    CSRF_COOKIE_SECURE=True
+    SECURE_HSTS_SECONDS=31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+    SECURE_HSTS_PRELOAD=True
+    ```
 - Consider using a managed database service instead of the containerized PostgreSQL
+
+### Troubleshooting SSL/HTTPS Issues
+
+If you see "https" crossed out in your browser with a "not secure" warning, this could be due to one of the following reasons:
+
+#### For Local Development:
+- This is **normal and expected** when using a self-signed certificate for localhost
+- Your browser will always show a security warning for self-signed certificates
+- You can safely proceed past this warning for local development
+- No action is required unless you want to disable SSL entirely (see "Local Development without SSL" section)
+
+#### For Production:
+1. **Using example.com instead of your actual domain:**
+   - Make sure you've replaced `example.com` in the Caddyfile with your actual domain name
+   - Make sure you've replaced `admin@example.com` with your actual email address
+   - Restart Caddy after making these changes: `docker-compose restart caddy`
+
+2. **Domain not properly configured:**
+   - Ensure your domain's DNS records point to your server's IP address
+   - Make sure ports 80 and 443 are open on your server and not blocked by a firewall
+   - Caddy needs to be able to communicate with Let's Encrypt servers to obtain a certificate
+   - Verify your domain is correctly pointing to your server using: `nslookup yourdomain.com`
+   - Verify ports 80 and 443 are open using an online port checker or: `telnet yourdomain.com 80` and `telnet yourdomain.com 443`
+
+3. **Let's Encrypt rate limits:**
+   - If you've made too many certificate requests, you might hit rate limits
+   - Wait at least an hour before trying again
+   - Check Caddy logs for more information: `docker-compose logs caddy`
+
+4. **Certificate not being generated:**
+   - The Caddyfile includes an `on_demand` directive in the TLS configuration which forces certificate issuance/renewal
+   - If certificates still aren't being generated, check the Caddy logs for specific errors: `docker-compose logs caddy`
+   - Ensure your server is publicly accessible from the internet (Let's Encrypt needs to verify domain ownership)
+   - Try temporarily disabling any firewalls or CDNs that might be blocking Let's Encrypt verification
+
+5. **Verifying Let's Encrypt can reach your server:**
+   - Let's Encrypt needs to verify domain ownership by making HTTP requests to your server
+   - These requests are made to `http://yourdomain.com/.well-known/acme-challenge/`
+   - Ensure this path is not blocked by any firewall, proxy, or CDN
+   - You can test if your server is reachable by running: `curl -I http://yourdomain.com`
+
+### Local Development with SSL
+
+By default, the application is configured to use HTTPS on localhost with a self-signed certificate:
+- The Caddyfile includes `tls internal` for localhost and 127.0.0.1, which generates a self-signed certificate
+- When accessing https://localhost, your browser will show a security warning because the certificate is self-signed
+- You can safely proceed past this warning for local development
+- Ensure your .env file has the following settings:
+  ```
+  CSRF_TRUSTED_ORIGINS=http://localhost,https://localhost,http://127.0.0.1,https://127.0.0.1,https://example.com
+  SECURE_SSL_REDIRECT=True
+  SESSION_COOKIE_SECURE=True
+  CSRF_COOKIE_SECURE=True
+  ```
+
+### Local Development without SSL
+
+If you prefer to use HTTP instead of HTTPS for local development:
+1. Modify the Caddyfile to remove the `tls internal` line from the localhost section
+2. Set the following in your .env file:
+  ```
+  SECURE_SSL_REDIRECT=False
+  SESSION_COOKIE_SECURE=False
+  CSRF_COOKIE_SECURE=False
+  ```
+3. Restart the Caddy container:
+  ```bash
+  docker-compose restart caddy
+  ```
+
+## Ansible Deployment (Infrastructure as Code)
+
+The application can be deployed using Ansible for Infrastructure as Code (IaC). This approach automates the deployment process and ensures consistent environments.
+
+### Prerequisites
+
+- Ansible 2.9 or higher installed on your local machine
+- Target servers running Ubuntu 20.04 or higher
+- SSH access to the target servers
+
+### Setup
+
+1. Configure the inventory file:
+   ```bash
+   cd ansible
+   # Edit inventory/hosts with your server details
+   ```
+
+2. Create a variables file for your environment:
+   ```bash
+   # Copy the example file
+   cp vars/production.example.yml vars/production.yml
+   # Edit vars/production.yml with your configuration
+   ```
+
+3. Run the Ansible playbook:
+   ```bash
+   ansible-playbook -i inventory/hosts site.yml --limit production --extra-vars "@vars/production.yml"
+   ```
+
+### What the Ansible Playbook Does
+
+The Ansible playbook automates the following tasks:
+
+1. Updates the system and installs common packages
+2. Installs Docker and Docker Compose
+3. Deploys the Django application using Docker
+4. Sets up database backup
+5. Configures Redis monitoring
+6. Sets up Caddy as a reverse proxy with automatic HTTPS
+
+For more details, see the [ansible/README.md](ansible/README.md) file.
